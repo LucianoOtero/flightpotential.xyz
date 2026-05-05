@@ -1,5 +1,4 @@
-// Configurable API base URL - set NEXT_PUBLIC_API_URL in Vercel and .env.local
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://flightpotential-api-eq6gtjzxta-rj.a.run.app";
+// API client - uses local proxy routes to avoid CORS issues
 
 export interface AnalyzeRequest {
   latitude: number;
@@ -30,9 +29,9 @@ export interface Location {
   longitude: number;
 }
 
-// Analyze endpoint
+// Analyze endpoint - via proxy
 export async function analyzeLocation(data: AnalyzeRequest): Promise<AnalyzeResponse> {
-  const response = await fetch(`${API_BASE_URL}/analyze`, {
+  const response = await fetch("/api/analyze", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -41,15 +40,16 @@ export async function analyzeLocation(data: AnalyzeRequest): Promise<AnalyzeResp
   });
 
   if (!response.ok) {
-    throw new Error(`Analysis failed: ${response.statusText}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `Analysis failed: ${response.statusText}`);
   }
 
   return response.json();
 }
 
-// Favorites endpoints
+// Favorites endpoints - via proxy
 export async function getLocations(): Promise<Location[]> {
-  const response = await fetch(`${API_BASE_URL}/locations`);
+  const response = await fetch("/api/locations");
   
   if (!response.ok) {
     throw new Error(`Failed to fetch locations: ${response.statusText}`);
@@ -59,7 +59,7 @@ export async function getLocations(): Promise<Location[]> {
 }
 
 export async function createLocation(data: Omit<Location, "id">): Promise<Location> {
-  const response = await fetch(`${API_BASE_URL}/locations`, {
+  const response = await fetch("/api/locations", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -75,7 +75,7 @@ export async function createLocation(data: Omit<Location, "id">): Promise<Locati
 }
 
 export async function updateLocation(id: string, data: Partial<Location>): Promise<Location> {
-  const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+  const response = await fetch(`/api/locations/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -91,7 +91,7 @@ export async function updateLocation(id: string, data: Partial<Location>): Promi
 }
 
 export async function deleteLocation(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+  const response = await fetch(`/api/locations/${id}`, {
     method: "DELETE",
   });
 
@@ -100,9 +100,9 @@ export async function deleteLocation(id: string): Promise<void> {
   }
 }
 
-// PDF report endpoint
+// PDF report endpoint - via proxy
 export async function downloadReport(data: AnalyzeRequest): Promise<Blob> {
-  const response = await fetch(`${API_BASE_URL}/report`, {
+  const response = await fetch("/api/report", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

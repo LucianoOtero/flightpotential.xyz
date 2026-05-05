@@ -1,5 +1,5 @@
-// Configurable API base URL
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://your-backend-url.com";
+// Configurable API base URL - set NEXT_PUBLIC_API_URL in Vercel and .env.local
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://flightpotential-api-eq6gtjzxta-rj.a.run.app";
 
 export interface AnalyzeRequest {
   latitude: number;
